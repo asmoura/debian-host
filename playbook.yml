@@ -5,12 +5,12 @@
   connection: local
 
   tasks:
-     - name: Install essential packages
-       become: true
-       ansible.builtin.apt:
-         state: present
-         update_cache: yes
-         name:
+    - name: Install essential packages
+      become: true
+      ansible.builtin.apt:
+        state: present
+        update_cache: true
+        name:
           - 'tmux'
           - 'vim'
           - 'htop'
