@@ -1,0 +1,54 @@
+---
+
+- name: Localenv
+  hosts: localhost
+  connection: local
+
+  tasks:
+     - name: Install essential packages
+       become: true
+       ansible.builtin.apt:
+         state: present
+         update_cache: yes
+         name:
+          - 'tmux'
+          - 'vim'
+          - 'htop'
+          - 'bat'
+          - 'grc'
+          - 'exa'
+          - 'wget2'
+          - 'curl'
+          - 'aria2'
+          - 'axel'
+          - 'git'
+          - 'asciinema'
+          - 'btop'
+          - 'w3m'
+          - 'links'
+          - 'net-tools'
+          - 'traceroute'
+          - 'cpufetch'
+          - 'neofetch'
+          - 'sshpass'
+          - 'fping'
+          - 'fzf'
+          - 'zoxide'
+          - 'tldr'
+          - 'duf'
+          - 'speedtest-cli'
+          - 'entr'
+          - 'ipcalc'
+          - 'logrotate'
+          - 'lshw'
+          - 'lsof'
+          - 'rclone'
+          - 'thefuck'
+          - 'iptables-persistent'
+          - 'multitail'
+          - 'colortail'
+          - 'nala'
+          - 'autojump'
+          - 'atop'
+          - 'cpu-checker'
+          - 'zsh'
