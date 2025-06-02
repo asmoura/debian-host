@@ -24,7 +24,7 @@ sed -i 's/^#NTP=/NTP=sa.pool.ntp.org/' /etc/systemd/timesyncd.conf
 tar -z -x -C /tmp -f /tmp/postinstall.tar.gz
 
 # install global things and root things
-mkdir -m 700 -p /root/.ssh
+mkdir -m700 -p /root/.ssh
 cp /tmp/postinstall.d/resolv.conf /etc/resolv.conf
 cp /tmp/postinstall.d/apt.conf.d/50unattended-upgrades /etc/apt/apt.conf.d/50unattended-upgrades
 cp /tmp/postinstall.d/apt.conf.d/20auto-upgrades /etc/apt/apt.conf.d/20auto-upgrades
