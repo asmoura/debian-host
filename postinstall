@@ -9,7 +9,7 @@ set -e
 DEBIAN_FRONTEND=noninteractive apt-get purge -y laptop-detect tasksel emacsen-common ienglish-common ispell
 
 # install some additional packages
-DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends linux-headers-amd64 openssh-server sudo time openssl gnutls-bin zip unzip bzip2 lynx vim vim-scripts curl wget2 ansible ansible-lint whois net-tools patch telnet sqlite3 strace lsof less screen rsync git git-lfs dos2unix myrepos traceroute bash-completion socat busybox psmisc man-db dnsutils unattended-upgrades gpg-agent gnupg software-properties-common tcpdump make gzrt jq bash zsh htop dbus-user-session fuse3 acl python3-venv python3-pip python3-setuptools python3-wheel python3-psutil python3-pylibacl python3-sh python3-prometheus-client rdiff-backup xfsprogs smartmontools htop exa grc bat vim iperf fping termshark curl axel aria2 rclone cpufetch neofetch
+DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends linux-headers-amd64 openssh-server sudo time openssl gnutls-bin zip unzip bzip2 lynx vim vim-scripts curl wget2 ansible ansible-lint whois net-tools patch telnet sqlite3 strace lsof less screen rsync git git-lfs dos2unix myrepos traceroute bash-completion socat busybox psmisc man-db dnsutils unattended-upgrades gpg-agent gnupg software-properties-common tcpdump make gzrt jq bash zsh htop dbus-user-session fuse3 acl python3-venv python3-pip python3-setuptools python3-wheel python3-psutil python3-pylibacl python3-sh python3-prometheus-client rdiff-backup xfsprogs smartmontools htop exa grc bat vim iperf fping termshark curl axel aria2 rclone cpufetch neofetch sshpass
 
 # members of `sudo` group are not asked for password.
 sed -i 's/^%sudo\tALL=(ALL:ALL) ALL/%sudo\tALL=(ALL:ALL) NOPASSWD:ALL/' /etc/sudoers
@@ -31,13 +31,13 @@ cp /tmp/postinstall.d/apt.conf.d/20auto-upgrades /etc/apt/apt.conf.d/20auto-upgr
 cp /tmp/postinstall.d/vimrc /root/.vimrc
 cp /tmp/postinstall.d/bash_login /root/.bash_login
 
-# add our sudoers file for paul
+# add our sudoers file for user
 cp /tmp/postinstall.d/sudoers /etc/sudoers.d/asm
 chmod 400 /etc/sudoers.d/asm
 
 # install ssh keys and other things for user
 mkdir -m700 -p /home/asm/.ssh
-cp /tmp/postinstall.d/authorized_keys /home/paul/.ssh/authorized_keys
+cp /tmp/postinstall.d/authorized_keys /home/asm/.ssh/authorized_keys
 cp /tmp/postinstall.d/vimrc /home/asm/.vimrc
 cp /tmp/postinstall.d/bash_login /home/asm/.bash_login
 
@@ -49,3 +49,38 @@ chmod 600 /root/.bash_login
 chown -R asm:asm /home/asm
 chmod 700 /home/asm
 chmod 600 /home/asm/.bash_login /home/asm/.ssh/authorized_keys
+
+# Add Docker's official GPG key:
+apt-get update
+apt-get install ca-certificates curl -y
+install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+chmod a+r /etc/apt/keyrings/docker.asc
+
+# Add the repository to Apt sources:
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  tee /etc/apt/sources.list.d/docker.list > /dev/null
+apt-get update
+apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+# docker run hello-world
+usermod -aG docker itops
+usermod -aG docker asm
+docker pull perfsonar/testpoint:systemd
+docker run -td --name perfsonar-testpoint --net=host --tmpfs /run --tmpfs /run/lock --tmpfs /tmp -v /sys/fs/cgroup:/sys/fs/cgroup:rw --cgroupns host perfsonar/testpoint:systemd
+# export ID=$(docker ps | egrep perfsonar | awk -F' ' '{print $1}' )
+# docker exec -it $ID pscheduler troubleshoot
+# docker exec -it $ID /usr/lib/perfsonar/scripts/configure_ntpd new
+# docker exec -it $ID service ntp restart
+# docker exec -it $ID service pscheduler-scheduler status
+# docker exec -it $ID service pscheduler-runner status
+# docker exec -it $ID service pscheduler-archiver status
+# docker exec -it $ID service pscheduler-ticker status
+# docker exec -it $ID service owamp-server status
+# docker exec -it $ID service perfsonar-lsregistrationdaemon status
+
+curl -o /etc/apt/sources.list.d/perfsonar-release.list https://downloads.perfsonar.net/debian/perfsonar-release.list
+curl -s -o /etc/apt/trusted.gpg.d/perfsonar-release.gpg.asc https://downloads.perfsonar.net/debian/perfsonar-release.gpg.key
+apt update
+apt install perfsonar-toolkit-ntp perfsonar-toolkit-security perfsonar-toolkit-sysctl --no-install-recommends -y
